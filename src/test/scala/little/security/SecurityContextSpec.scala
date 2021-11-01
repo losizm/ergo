@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package little.security
+package ergo.security
 
 class SecurityContextSpec extends org.scalatest.flatspec.AnyFlatSpec:
   val create = Permission("create")
@@ -21,68 +21,68 @@ class SecurityContextSpec extends org.scalatest.flatspec.AnyFlatSpec:
   val insert = Permission("insert")
   val update = Permission("update")
   val delete = Permission("delete")
-  val guest  = UserPermission("guest")
+  val lupita = UserPermission("lupita")
   val root   = UserPermission("root")
   val staff  = GroupPermission("staff")
   val wheel  = GroupPermission("wheel")
 
-  val security = UserContext("guest", "staff", select, update)
+  val security = UserContext("lupita", "staff", select, update)
   val empty = Set.empty[Permission]
 
   it should "create user context" in {
-    val s1 = UserContext("guest", "staff", select, update)
-    assert(s1.userId == "guest")
+    val s1 = UserContext("lupita", "staff", select, update)
+    assert(s1.userId == "lupita")
     assert(s1.groupId == "staff")
-    assert(s1.test(guest))
+    assert(s1.test(lupita))
     assert(s1.test(staff))
     assert(s1.test(select))
     assert(s1.test(update))
 
-    val s2 = UserContext("guest", "staff", select, update, staff, wheel)
-    assert(s2.userId == "guest")
+    val s2 = UserContext("lupita", "staff", select, update, staff, wheel)
+    assert(s2.userId == "lupita")
     assert(s2.groupId == "staff")
-    assert(s2.test(guest))
+    assert(s2.test(lupita))
     assert(s2.test(staff))
     assert(s2.test(wheel))
     assert(s2.test(select))
     assert(s2.test(update))
 
-    val s3 = UserContext("guest", "staff", select, update, guest, staff, wheel)
-    assert(s3.userId == "guest")
+    val s3 = UserContext("lupita", "staff", select, update, lupita, staff, wheel)
+    assert(s3.userId == "lupita")
     assert(s3.groupId == "staff")
-    assert(s3.test(guest))
+    assert(s3.test(lupita))
     assert(s3.test(staff))
     assert(s3.test(wheel))
     assert(s3.test(select))
     assert(s3.test(update))
 
     assertThrows[IllegalArgumentException] {
-      UserContext("guest", "staff", select, update, guest, root)
+      UserContext("lupita", "staff", select, update, lupita, root)
     }
   }
 
   "UserContext" should "grant permissions" in {
-    val s1 = UserContext("guest", "staff", select, update)
-    assert(s1.userId == "guest")
+    val s1 = UserContext("lupita", "staff", select, update)
+    assert(s1.userId == "lupita")
     assert(s1.groupId == "staff")
-    assert(s1.test(guest))
+    assert(s1.test(lupita))
     assert(s1.test(staff))
     assert(s1.test(select))
     assert(s1.test(update))
 
     val s2 = s1.grant(insert)
-    assert(s2.userId == "guest")
+    assert(s2.userId == "lupita")
     assert(s2.groupId == "staff")
-    assert(s2.test(guest))
+    assert(s2.test(lupita))
     assert(s2.test(staff))
     assert(s2.test(select))
     assert(s2.test(update))
     assert(s2.test(insert))
 
     val s3 = s1.grant(insert, delete)
-    assert(s3.userId == "guest")
+    assert(s3.userId == "lupita")
     assert(s3.groupId == "staff")
-    assert(s3.test(guest))
+    assert(s3.test(lupita))
     assert(s3.test(staff))
     assert(s3.test(select))
     assert(s3.test(update))
@@ -90,59 +90,59 @@ class SecurityContextSpec extends org.scalatest.flatspec.AnyFlatSpec:
     assert(s3.test(delete))
 
     val s4 = s1.grant(empty)
-    assert(s4.userId == "guest")
+    assert(s4.userId == "lupita")
     assert(s4.groupId == "staff")
-    assert(s4.test(guest))
+    assert(s4.test(lupita))
     assert(s4.test(staff))
     assert(s4.test(select))
     assert(s4.test(update))
 
     val s5 = s1.grant(s1.permissions)
-    assert(s5.userId == "guest")
+    assert(s5.userId == "lupita")
     assert(s5.groupId == "staff")
-    assert(s5.test(guest))
+    assert(s5.test(lupita))
     assert(s5.test(staff))
     assert(s5.test(select))
     assert(s5.test(update))
   }
 
   it should "revoke permissions" in {
-    val s1 = UserContext("guest", "staff", select, update)
-    assert(s1.userId == "guest")
+    val s1 = UserContext("lupita", "staff", select, update)
+    assert(s1.userId == "lupita")
     assert(s1.groupId == "staff")
-    assert(s1.test(guest))
+    assert(s1.test(lupita))
     assert(s1.test(staff))
     assert(s1.test(select))
     assert(s1.test(update))
 
     val s2 = s1.revoke(update)
-    assert(s2.userId == "guest")
+    assert(s2.userId == "lupita")
     assert(s2.groupId == "staff")
-    assert(s2.test(guest))
+    assert(s2.test(lupita))
     assert(s2.test(staff))
     assert(s2.test(select))
     assert(!s2.test(update))
 
     val s3 = s1.revoke(select, update)
-    assert(s3.userId == "guest")
+    assert(s3.userId == "lupita")
     assert(s3.groupId == "staff")
-    assert(s3.test(guest))
+    assert(s3.test(lupita))
     assert(s3.test(staff))
     assert(!s3.test(select))
     assert(!s3.test(update))
 
     val s4 = s1.revoke(empty)
-    assert(s4.userId == "guest")
+    assert(s4.userId == "lupita")
     assert(s4.groupId == "staff")
-    assert(s4.test(guest))
+    assert(s4.test(lupita))
     assert(s4.test(staff))
     assert(s4.test(select))
     assert(s4.test(update))
 
     val s5 = s1.revoke(s1.permissions)
-    assert(s5.userId == "guest")
+    assert(s5.userId == "lupita")
     assert(s5.groupId == "staff")
-    assert(s5.test(guest))
+    assert(s5.test(lupita))
     assert(s5.test(staff))
     assert(!s5.test(select))
     assert(!s5.test(update))
@@ -152,7 +152,7 @@ class SecurityContextSpec extends org.scalatest.flatspec.AnyFlatSpec:
     assert { security(select)(1) == 1 }
     assert { security(update)(1) == 1 }
 
-    assert { security(guest)(1) == 1 }
+    assert { security(lupita)(1) == 1 }
     assert { security(staff)(1) == 1 }
   }
 
@@ -224,16 +224,16 @@ class SecurityContextSpec extends org.scalatest.flatspec.AnyFlatSpec:
     assert { RootContext.test(select) }
     assert { RootContext.test(update) }
     assert { RootContext.test(delete) }
-    assert { RootContext.test(guest) }
+    assert { RootContext.test(lupita) }
     assert { RootContext.test(root) }
     assert { RootContext.test(staff) }
     assert { RootContext.test(wheel) }
   }
 
   it should "authorize operation for all permissions" in {
-    assert { RootContext.all(create, select, update, delete, guest, root, staff, wheel)(1) == 1 }
+    assert { RootContext.all(create, select, update, delete, lupita, root, staff, wheel)(1) == 1 }
   }
 
   it should "authorize operation for any permission" in {
-    assert { RootContext.any(create, select, update, delete, guest, root, staff, wheel)(1) == 1 }
+    assert { RootContext.any(create, select, update, delete, lupita, root, staff, wheel)(1) == 1 }
   }

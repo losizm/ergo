@@ -1,8 +1,8 @@
-# little-security
+# Ergo
 
-The Scala library that adds a little security to applications.
+For contextual security in Scala.
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.losizm/little-security_3.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.losizm%22%20AND%20a:%22little-security_3%22)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.losizm/ergo_3.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.losizm%22%20AND%20a:%22ergo_3%22)
 
 ## Table of Contents
 - [Getting Started](#Getting-Started)
@@ -20,19 +20,15 @@ The Scala library that adds a little security to applications.
 
 
 ## Getting Started
-To get started, add **little-security** to your library dependencies.
+To get started, add **Ergo** to your library dependencies.
 
 ```scala
-libraryDependencies += "com.github.losizm" %% "little-security" % "1.1.0"
+libraryDependencies += "com.github.losizm" %% "ergo" % "1.1.0"
 ```
-
-_**NOTE:** Starting with version 1, **little-security** is written for Scala 3
-exclusively. See previous releases for compatibility with Scala 2.12 and Scala
-2.13._
 
 ## How It Works
 
-**little-security** is powered by a pair of traits: `Permission` and
+**Ergo** is powered by a pair of traits: `Permission` and
 `SecurityContext`.
 
 A `Permission` is defined with a given name, and one or more permissions can be
@@ -45,10 +41,10 @@ performed only if its required permissions are granted; otherwise, a
 ### Security in Action
 
 The following script demonstrates how read/write access to an in-memory cache
-could be implemented.
+could be implemented:
 
 ```scala
-import little.security.{ Permission, SecurityContext, UserContext }
+import ergo.security.{ Permission, SecurityContext, UserContext }
 
 import scala.collection.concurrent.TrieMap
 
@@ -71,7 +67,7 @@ object SecureCache:
     security(putPermission) { cache += key -> value }
 
 // Set security context for user with read permission to cache
-given SecurityContext = UserContext("losizm", "staff", Permission("cache:get"))
+given SecurityContext = UserContext("lupita", "staff", Permission("cache:get"))
 
 // Get cache entry
 val classic = SecureCache.get("gang starr")
@@ -86,43 +82,43 @@ A `Permission` is identified by its name, and you're free to implement any
 convention for the names.
 
 The following defines 3 permissions, any of which could be used as a
-permission for read access to an archive module.
+permission for read access to an archive module:
 
 ```scala
 val perm1 = Permission("archive:read")
 val perm2 = Permission("module=archive; access=read")
-val perm3 = Permission("[[GET]] /api/modules/archive")
+val perm3 = Permission("GET /api/modules/archive")
 ```
 
 ### User and Group Permissions
 
 A user permission is created with `UserPermission`. There's no implementing
-class: It's just a factory. It constructs a permission with a specially
+class: it's just a factory. It constructs a permission with a specially
 formatted name using a user identifier.
 
 ```scala
-import little.security.UserPermission
+import ergo.security.UserPermission
 
-val userPermission = UserPermission("losizm")
+val userPermission = UserPermission("lupita")
 
 // Destructure permission to its user identifier
 userPermission match
   case UserPermission(userId) => println(s"uid=$userId")
-  case perm                   => throw Exception(s"Unexpected permission: ${perm.name}")
+  case _                      => throw Exception("Not a user permission")
 ```
 
 And `GroupPermission` constructs a permission with a specially formatted name
 using a group identifier.
 
 ```scala
-import little.security.GroupPermission
+import ergo.security.GroupPermission
 
 val groupPermission = GroupPermission("staff")
 
 // Destructure permission to its group identifier
 groupPermission match
   case GroupPermission(groupId) => println(s"gid=$groupId")
-  case perm                     => throw Exception(s"Unexpected permission: ${perm.name}")
+  case _                        => throw Exception("Not a group permission")
 ```
 
 See also [Automatic User and Group Permissions](#Automatic-User-and-Group-Permissions).
@@ -138,7 +134,7 @@ with supplied user and group identifiers along with a set of granted
 permissions.
 
 ```scala
-import little.security.{ Permission, SecurityContext, UserContext }
+import ergo.security.{ Permission, SecurityContext, UserContext }
 
 object BuildManager:
   private val buildPermission      = Permission("action=build")
@@ -175,7 +171,7 @@ BuildManager.build("my-favorite-app")
 // Permission granted to deploy to dev
 BuildManager.deployToDev("my-favorite-app")
 
-// Permission not granted to deploy to prod -- throw SecurityViolation
+// Permission not granted to deploy to prod -- throws SecurityViolation
 BuildManager.deployToProd("my-favorite-app")
 ```
 
@@ -188,7 +184,7 @@ supplied permissions is granted before an operation is applied.
 permissions are granted before an operation is applied.
 
 ```scala
-import little.security.{ Permission, SecurityContext, UserContext }
+import ergo.security.{ Permission, SecurityContext, UserContext }
 
 object FileManager:
   private val readOnlyPermission  = Permission("file:read-only")
@@ -213,7 +209,7 @@ given SecurityContext = UserContext("isaac", "ops", Permission("file:read-write"
 // Can read via read-write permission
 FileManager.read("/etc/passwd")
 
-// Has read-write but lacks encrypt permission -- throw SecurityViolation
+// Has read-write but lacks encrypt permission -- throws SecurityViolation
 FileManager.encrypt("/etc/passwd")
 ```
 
@@ -223,10 +219,10 @@ Sometimes, it may be enough to simply test a permission to see whether it is
 granted, and not necessarily throw a `SecurityViolation` if it isn't. That's
 precisely what `SecurityContext.test(Permission)` is for. It returns `true` or
 `false` based on the permission being granted or not. It's an ideal predicate to
-a security filter, as demonstrated in the following script.
+a security filter, as demonstrated in the following script:
 
 ```scala
-import little.security.{ Permission, SecurityContext, UserContext }
+import ergo.security.{ Permission, SecurityContext, UserContext }
 
 object SecureMessages:
   // Define class for text message with assigned permission
@@ -243,7 +239,7 @@ object SecureMessages:
     messages.filter(msg => security.test(msg.permission)).map(_.text)
 
 // Set security context for user with "public" and "protected" permissions
-given SecurityContext = UserContext("losizm", "staff",
+given SecurityContext = UserContext("lupita", "staff",
   Permission("public"),
   Permission("protected")
 )
@@ -258,10 +254,10 @@ When an instance of `UserContext` is created, user and group permissions are
 added to the permissions expressly supplied in constructor.
 
 ```scala
-val user = UserContext("losizm", "staff", Permission("read"))
+val user = UserContext("lupita", "staff", Permission("read"))
 
 assert(user.test(Permission("read")))
-assert(user.test(UserPermission("losizm")))
+assert(user.test(UserPermission("lupita")))
 assert(user.test(GroupPermission("staff")))
 ```
 
@@ -270,7 +266,7 @@ could be implemented giving a single user read/write permissions, while allowing
 other users in her group read permission only.
 
 ```scala
-import little.security.*
+import ergo.security.*
 
 import scala.collection.concurrent.TrieMap
 
@@ -310,7 +306,7 @@ of granted permissions. Rather, there's no permission it doesn't have. It's the
 _superuser_ security context.
 
 `RootContext` is an object implementation, so there is only one instance of it.
-It should be used for the purpose of effectively bypassing security checks.
+It should be used to effectively bypass security checks.
 
 ```scala
 // Print all messages
@@ -320,17 +316,17 @@ SecureMessages.list(using RootContext).foreach(println)
   // Create permission with randomly generated name
   val perm = Permission(scala.util.Random.nextString(8))
 
-  // Assert permission is granted
+  // Assert permission is always granted
   assert(RootContext.test(perm))
 }
 ```
 
-The following script is a more intricate example. It demonstrates how to
+The next script is a more intricate example. It demonstrates how to
 simulate _sudo_ functionality. It does this by defining a group permission to
 regulate user access to `RootContext`.
 
 ```scala
-import little.security.*
+import ergo.security.*
 
 object sudo:
   // Define group permission required for sudo
@@ -353,7 +349,7 @@ object SecureMessages:
     messages.filter(msg => security.test(msg.permission)).map(_.text)
 
 // Set security context
-given SecurityContext = UserContext("losizm", "staff",
+given SecurityContext = UserContext("lupita", "staff",
   Permission("public"),
   Permission("protected"),
   GroupPermission("sudoers") // Add group permission required for sudo
@@ -363,18 +359,17 @@ println("Print messages in user context...")
 SecureMessages.list.foreach(println)
 
 println("Print messages in sudo context...")
-// NOTE: The `implicit security` below "shadows" the previously declared
-// security context. The new context is provided by sudo.
 sudo { implicit security =>
+  // The `implicit security` shadows the previous security context.
   SecureMessages.list.foreach(println)
 }
 ```
 
 ## API Documentation
 
-See [scaladoc](https://losizm.github.io/little-security/latest/api/little/security.html)
+See [scaladoc](https://losizm.github.io/ergo/latest/api/ergo/security.html)
 for additional details.
 
 ## License
-**little-security** is licensed under the Apache License, Version 2. See [LICENSE](LICENSE)
+**Ergo** is licensed under the Apache License, Version 2. See [LICENSE](LICENSE)
 for more information.

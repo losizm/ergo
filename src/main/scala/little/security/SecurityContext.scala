@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package little.security
+package ergo.security
 
 /**
  * Defines context in which permissions are granted.
@@ -28,7 +28,7 @@ package little.security
  * could be implemented.
  *
  * {{{
- * import little.security.{ Permission, SecurityContext, UserContext }
+ * import ergo.security.{ Permission, SecurityContext, UserContext }
  *
  * import scala.collection.concurrent.TrieMap
  *
@@ -50,8 +50,8 @@ package little.security
  *     // Test for write permission before putting cache entry
  *     security(putPermission) { cache += key -> value }
  *
- * // Create security context for user with read permission to cache
- * given SecurityContext = UserContext("losizm", "staff", Permission("cache:get"))
+ * // Set security context for user with read permission to cache
+ * given SecurityContext = UserContext("lupita", "staff", Permission("cache:get"))
  *
  * // Get cache entry
  * val classic = SecureCache.get("gang starr")
