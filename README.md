@@ -1,23 +1,10 @@
 # Ergo
 
-For contextual security in Scala.
-
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.losizm/ergo_3.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.losizm%22%20AND%20a:%22ergo_3%22)
 
-## Table of Contents
-- [Getting Started](#Getting-Started)
-- [How It Works](#How-It-Works)
-  - [Security in Action](#Security-in-Action)
-- [Permission](#Permission)
-  - [User and Group Permissions](#User-and-Group-Permissions)
-- [Security Context](#Security-Context)
-  - [Granting Any or All Permissions](#Granting-Any-or-All-Permissions)
-  - [Testing Permissions](#Testing-Permissions)
-  - [Automatic User and Group Permissions](#Automatic-User-and-Group-Permissions)
-  - [The Omnipotent Root Context](#The-Omnipotent-Root-Context)
-- [API Documentation](#API-Documentation)
-- [License](#License)
+For contextual security in Scala.
 
+_This project is archived and read-only. See [Bolster](https://github.com/losizm/bolster) for active fork._
 
 ## Getting Started
 To get started, add **Ergo** to your library dependencies.
